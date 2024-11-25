@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" style="--vh: 7.03px; overflow: hidden; --color-primary: #abb8c3; --color-secondary: #EA475C; --menu-width: 0px; --pano-close-btn-width: 0px;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matterport with Bootstrap Offcanvas and Popups</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1;
+        }
+
+        /* Стили для гамбургер-меню */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            flex-wrap: wrap;
+            align-items: stretch;
+            align-content: center;
+        }
+
+        .toggle-btn:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* Линии для гамбургер-меню */
+        .toggle-btn .bar {
+            width: 20px;
+            height: 2px;
+            background-color: #ffffff;
+            margin: 2px 0;
+            transition: transform 0.4s ease, background-color 0.3s ease;
+        }
+
+        .toggle-btn.open .bar1 {
+            transform: rotate(-45deg) translate(-4px, 4px);
+        }
+
+        .toggle-btn.open .bar2 {
+            opacity: 0;
+        }
+
+        .toggle-btn.open .bar3 {
+            transform: rotate(45deg) translate(-4px, -5px);
+        }
+
+        .circle-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            z-index: 1040;
+            transition: transform 0.5s ease-out;
+        }
+
+        .circle-menu .menu-items {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .circle-menu.open .menu-items {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-items button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-items button:hover {
+            background-color: #ffffff13;
+            color: white;
+        }
+
+        /* Анимация для веерного открытия, но с сохранением конечных координат */
+        .circle-menu.open .menu-items button:nth-child(1) {
+            transform: translate(-85px, -13px) rotate(-360deg); /* Прежние координаты */
+        }
+
+        .circle-menu.open .menu-items button:nth-child(2) {
+            transform: translate(-66px, 70px) rotate(-360deg); /* Прежние координаты */
+        }
+
+        .circle-menu.open .menu-items button:nth-child(3) {
+            transform: translate(14px, 90px) rotate(-360deg); /* Прежние координаты */
+        }
+
+        .modal-dialog {
+            max-width: 95%;
+            margin-top: 20px;
+            height: 95%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            height: 100%;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-body {
+            padding: 0;
+            height: 100%;
+        }
+
+        .modal-body img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+        }
+
+        /* Стили для кнопки в левом нижнем углу */
+        .switch-btn {
+            position: fixed;
+            bottom: 70px;
+            left: 22px;
+            z-index: 1050;
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .switch-btn:hover {
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+
+        .company-logo {
+            display: block;
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            z-index: 1050;
+            width: 100px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .company-logo:hover {
+            transform: scale(1.1);
+        }
+    </style>
+
+<script src="https://static.matterport.com/showcase-sdk/latest.js"></script>
+</head>
+<body>
+
+    <a href="https://avangardstyle.kg/" target="_blank" rel="noopener noreferrer">
+        <img src="logo.png" alt="Company Logo" class="company-logo">
+    </a>
+
+<div class="toggle-btn" id="toggleMenu">
+    <div class="bar bar1"></div>
+    <div class="bar bar2"></div>
+    <div class="bar bar3"></div>
+</div>
+
+<div class="circle-menu" id="circleMenu">
+    <div class="menu-items">
+        <button data-bs-toggle="modal" data-bs-target="#popup1">1</button>
+        <button data-bs-toggle="modal" data-bs-target="#popup2">2</button>
+        <button data-bs-toggle="modal" data-bs-target="#popup3">3</button>
+    </div>
+</div>
+
+<!-- Основной iframe -->
+<iframe id="mainIframe" src='https://my.matterport.com/show/?m=QGDSJoz7JJ7&play=1&pin=0&portal=0&fp=0&mls=2&portal=0&nozoom=1&wh=0&help=0' frameborder='0' allowfullscreen allow='xr-spatial-tracking'></iframe>
+
+<!-- Кнопка в левом нижнем углу -->
+<div class="switch-btn" id="switchBtn">
+    <i class="fas fa-sync-alt" style="color: #ffffff;"></i> <!-- Иконка замены -->
+</div>
+
+<div class="modal fade" id="popup1" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="img/МОСКВА_СИТИ_page-0017.jpg" data-bs-dismiss="modal" alt="Photo 1">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="popup2" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="img/МОСКВА_СИТИ_page-0003.jpg" data-bs-dismiss="modal" alt="Photo 2">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="popup3" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+            <img src="img/МОСКВА_СИТИ_page-0029.jpg" data-bs-dismiss="modal" alt="Photo 3">
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toggleMenu = document.getElementById('toggleMenu');
+    const circleMenu = document.getElementById('circleMenu');
+    const switchBtn = document.getElementById('switchBtn');
+    const mainIframe = document.getElementById('mainIframe');
+
+    const apiKey = 'eb6ad23a007db4a3c260bb2d29f23dc0    ';
+    const modelId = 'HnKWrGmt1sL'; // Замените на ID вашей модели
+
+    // Получение всех Mattertags для конкретной модели
+    async function getMattertags() {
+        const response = await fetch(`https://api.matterport.com/api/models/${modelId}/mattertags`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching mattertags: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.mattertags;
+    }
+
+    // Скрытие всех Mattertags
+    async function hideAllTags() {
+        try {
+            const mattertags = await getMattertags();
+
+            // Обновление видимости каждого Mattertag
+            for (const tag of mattertags) {
+                await fetch(`https://api.matterport.com/api/models/${modelId}/mattertags/${tag.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        enabled: false  // Скрываем тег
+                    })
+                });
+            }
+
+            console.log("All tags have been hidden.");
+        } catch (error) {
+            console.error("Error hiding tags:", error);
+        }
+    }
+
+
+
+    toggleMenu.addEventListener('click', () => {
+        toggleMenu.classList.toggle('open');
+        circleMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (
+            circleMenu.classList.contains('open') &&
+            !circleMenu.contains(event.target) &&
+            event.target !== toggleMenu
+        ) {
+            toggleMenu.classList.remove('open');
+            circleMenu.classList.remove('open');
+        }
+    });
+
+    document.addEventListener('fullscreenchange', handleFullScreen);
+    document.addEventListener('webkitfullscreenchange', handleFullScreen);
+
+    function handleFullScreen() {
+        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+        toggleMenu.style.display = isFullscreen ? 'block' : 'flex';
+    }
+
+    // Обработка клика на кнопку для переключения iframe
+    switchBtn.addEventListener('click', () => {
+        const currentSrc = mainIframe.src;
+        if (currentSrc.includes('QGDSJoz7JJ7')) {
+            mainIframe.src = 'https://my.matterport.com/show/?m=Nr6LgMPUrmz&play=1&pin=1&portal=0&fp=0';
+        } else {
+            mainIframe.src = 'https://my.matterport.com/show/?m=QGDSJoz7JJ7&play=1&pin=1&portal=0&fp=0';
+        }
+
+        // Повторная инициализация SDK при смене источника iframe
+        initializeSDK();
+    });
+
+</script>
+
+</body>
+</html>

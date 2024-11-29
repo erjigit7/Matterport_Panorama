@@ -230,7 +230,7 @@
 </div>
 
 <!-- Основной iframe -->
-<iframe id="mainIframe" src='https://my.matterport.com/show/?m=QGDSJoz7JJ7&play=1&pin=0&portal=0&fp=0&mls=2&portal=0&nozoom=1&wh=0&help=0' frameborder='0' allowfullscreen allow='xr-spatial-tracking'></iframe>
+<iframe id="mainIframe" src='https://my.matterport.com/show/?m=GN8qrZAoqoj&play=1&pin=0&portal=0&fp=0&mls=2&portal=0&nozoom=1&wh=0&help=0' frameborder='0' allowfullscreen allow='xr-spatial-tracking'></iframe>
 
 <!-- Кнопка в левом нижнем углу -->
 <div class="switch-btn" id="switchBtn">
@@ -347,10 +347,10 @@
     // Обработка клика на кнопку для переключения iframe
     switchBtn.addEventListener('click', () => {
         const currentSrc = mainIframe.src;
-        if (currentSrc.includes('QGDSJoz7JJ7')) {
-            mainIframe.src = 'https://my.matterport.com/show/?m=Nr6LgMPUrmz&play=1&pin=1&portal=0&fp=0';
+        if (currentSrc.includes('GN8qrZAoqoj')) {
+            mainIframe.src = 'https://my.matterport.com/show/?m=GN8qrZAoqoj&play=1&pin=1&portal=0&fp=0';
         } else {
-            mainIframe.src = 'https://my.matterport.com/show/?m=QGDSJoz7JJ7&play=1&pin=1&portal=0&fp=0';
+            mainIframe.src = 'https://my.matterport.com/show/?m=GN8qrZAoqoj&play=1&pin=1&portal=0&fp=0';
         }
 
         // Повторная инициализация SDK при смене источника iframe
